@@ -1,25 +1,34 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"log"
 	"net/http"
 	"os"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/kellemNegasi/snippetbox/pkg/models/mysql"
 )
 
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	snippet  *mysql.SnippetModel
 }
 
 func main() {
 	// define a command line flag with a name "addr" and default value :4000
 	addr := flag.String("addr", ":4000", "server address port")
+	dsn := flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "MySQL data source name")
 	// parse the command line flag to get the value of addr
 	flag.Parse()
 	// add leveled logging capability i.e info and error
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+	db, err := openDB(*dsn)
+	defer db.Close()
 
 	app := &application{
 		errorLog: errorLog,
@@ -32,6 +41,17 @@ func main() {
 		Handler:  app.routes(),
 	}
 	infoLog.Printf("Starting server at port %s", *addr)
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
+}
+
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+	return db, nil
 }
