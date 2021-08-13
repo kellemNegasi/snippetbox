@@ -14,13 +14,13 @@ import (
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
-	snippet  *mysql.SnippetModel
+	snippets *mysql.SnippetModel
 }
 
 func main() {
 	// define a command line flag with a name "addr" and default value :4000
 	addr := flag.String("addr", ":4000", "server address port")
-	dsn := flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "MySQL data source name")
+	dsn := flag.String("dsn", "web:K8467@/snippetbox?parseTime=true", "MySQL data source name")
 	// parse the command line flag to get the value of addr
 	flag.Parse()
 	// add leveled logging capability i.e info and error
@@ -28,11 +28,14 @@ func main() {
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	db, err := openDB(*dsn)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
 	defer db.Close()
-
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
+		snippets: &mysql.SnippetModel{DB: db},
 	}
 
 	srv := &http.Server{
@@ -43,6 +46,7 @@ func main() {
 	infoLog.Printf("Starting server at port %s", *addr)
 	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
+
 }
 
 func openDB(dsn string) (*sql.DB, error) {
