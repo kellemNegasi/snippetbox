@@ -21,7 +21,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-
 	// for _, snippet := range s {
 	// 	fmt.Fprintf(w, "%v\n", snippet)
 	// }
