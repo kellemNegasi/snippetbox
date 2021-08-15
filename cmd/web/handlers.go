@@ -14,7 +14,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
-
+	// panic("delibrate panic raised")
 	s, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, err)
