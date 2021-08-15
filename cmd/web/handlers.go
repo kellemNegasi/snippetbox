@@ -10,22 +10,21 @@ import (
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
-	if r.URL.Path != "/" {
-		app.notFound(w)
-		return
-	}
-	// panic("delibrate panic raised")
 	s, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
+
 	app.render(w, r, "home.page.tmpl", &templateData{
 		Snippets: s,
 	})
 }
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	// Pat doesn't strip the colon from the named capture key, so we need to
+	// get the value of ":id" from the query string instead of "id".
+
+	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
 
 	if err != nil || id < 1 {
 		app.notFound(w)
@@ -44,12 +43,13 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		Snippet: s,
 	})
 }
+
+// Add a new createSnippetForm handler, which for now returns a placeholder response.
+func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Create a new snippet..."))
+}
+
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		w.Header().Set("Allowed", "POST")
-		app.clientError(w, http.StatusMethodNotAllowed) // using the client error helper
-		return
-	}
 
 	title := "O snail"
 	content := "O snail\nClimb Mount Fuji,\nBut slowly,“slowly!\n\n– Kobayashi Issa"
@@ -64,5 +64,7 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 
 	// w.Write([]byte("Create a specific snippet\n"))
 	// redirect the user to the added item
-	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
+	// http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
+
+	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 }
