@@ -21,6 +21,7 @@ type application struct {
 	snippets      *mysql.SnippetModel
 	session       *sessions.Session
 	templateCache map[string]*template.Template
+	users         *mysql.UserModel
 }
 
 func main() {
@@ -41,13 +42,16 @@ func main() {
 	defer db.Close()
 	templateCache, err := newTemplateCache("./ui/html/")
 	new_session := sessions.New([]byte(*secret))
+	new_session.Secure = true
 	new_session.Lifetime = 12 * time.Hour
+
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
 		snippets:      &mysql.SnippetModel{DB: db},
 		session:       new_session,
 		templateCache: templateCache,
+		users:         &mysql.UserModel{DB: db},
 	}
 
 	tlsConfig := &tls.Config{
