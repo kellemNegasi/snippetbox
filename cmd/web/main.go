@@ -7,8 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golangcollege/sessions"
 	"github.com/kellemNegasi/snippetbox/pkg/models/mysql"
 )
 
@@ -16,6 +18,7 @@ type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
 	snippets      *mysql.SnippetModel
+	session       *sessions.Session
 	templateCache map[string]*template.Template
 }
 
@@ -23,6 +26,7 @@ func main() {
 	// define a command line flag with a name "addr" and default value :4000
 	addr := flag.String("addr", ":4000", "server address port")
 	dsn := flag.String("dsn", "web:K8467@/snippetbox?parseTime=true", "MySQL data source name")
+	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Secret key")
 	// parse the command line flag to get the value of addr
 	flag.Parse()
 	// add leveled logging capability i.e info and error
@@ -35,11 +39,13 @@ func main() {
 	}
 	defer db.Close()
 	templateCache, err := newTemplateCache("./ui/html/")
-
+	new_session := sessions.New([]byte(*secret))
+	new_session.Lifetime = 12 * time.Hour
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
 		snippets:      &mysql.SnippetModel{DB: db},
+		session:       new_session,
 		templateCache: templateCache,
 	}
 
