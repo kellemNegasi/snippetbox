@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"runtime/debug"
 	"time"
+
+	"github.com/justinas/nosurf"
 )
 
 func (app *application) authenticatedUser(r *http.Request) int {
@@ -29,6 +31,7 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 	if td == nil {
 		td = &templateData{}
 	}
+	td.CSRFToken = nosurf.Token(r)
 	td.AuthenticatedUser = app.authenticatedUser(r)
 	td.CurrentYear = time.Now().Year()
 

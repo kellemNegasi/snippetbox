@@ -10,6 +10,7 @@ import (
 )
 
 type templateData struct {
+	CSRFToken         string
 	Flash             string
 	AuthenticatedUser int
 	CurrentYear       int
