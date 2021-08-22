@@ -11,7 +11,7 @@ func (app *application) routes() http.Handler {
 	// standard normal middleware
 	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	// a separate middle ware for specific routes the need the session functinality
-	dynamicMiddleware := alice.New(app.session.Enable, noSurf)
+	dynamicMiddleware := alice.New(app.session.Enable, noSurf, app.authenticate)
 	// --------------
 
 	mux := pat.New()
