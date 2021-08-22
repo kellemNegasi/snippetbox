@@ -8,6 +8,9 @@ import (
 	"time"
 )
 
+func (app *application) authenticatedUser(r *http.Request) int {
+	return app.session.GetInt(r, "userID")
+}
 func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
 	ts, ok := app.templateCache[name]
 	if !ok {
@@ -26,7 +29,7 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 	if td == nil {
 		td = &templateData{}
 	}
-
+	td.AuthenticatedUser = app.authenticatedUser(r)
 	td.CurrentYear = time.Now().Year()
 
 	// Add the flash message to the template data, if one exists.

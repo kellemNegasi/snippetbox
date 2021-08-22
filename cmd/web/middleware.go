@@ -5,6 +5,17 @@ import (
 	"net/http"
 )
 
+func (app *application) requireAuthenticatedUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		if app.authenticatedUser(r) == 0 {
+			http.Redirect(w, r, "/user/login", 302)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-XSS-Protection", "1;mode=block")
