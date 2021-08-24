@@ -33,11 +33,7 @@ func (app *application) routes() http.Handler {
 
 	mux.Get("/static/", http.StripPrefix("/static", fileServer))
 
-	// secureHdrs := secureHeaders(mux)
-	// logReq := app.logRequest(secureHdrs)
-	// handler := app.recoverPanic(logReq)
+	mux.Get("/ping", http.HandlerFunc(ping))
 
-	// return app.recoverPanic(app.logRequest(secureHeaders(mux)))
-	// return handler
 	return standardMiddleware.Then(mux)
 }
