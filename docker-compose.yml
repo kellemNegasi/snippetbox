@@ -1,0 +1,29 @@
+version: '3'
+services: 
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 4000:4000
+    volumes:
+      - .:/snippetbox
+    depends_on: 
+      - database
+    container_name: snippetbox-web
+    environment: 
+      - 'DB_PORT=3306'
+      - 'DB_HOST = database'
+  
+  database:
+    image: mysql:5.7.22
+    environment: 
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: snippetbox
+    container_name: snippetbox-db 
+    ports:
+      - 3306:3306
+
+    
